@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-
-# This sample demonstrates handling intents from an Alexa skill using the Alexa Skills Kit SDK for Python.
-# Please visit https://alexa.design/cookbook for additional examples on implementing slots, dialog management,
-# session persistence, api calls, and more.
-# This sample is built using the handler classes approach in skill builder.
 import logging
 import requests
 import json
@@ -39,38 +34,7 @@ class LaunchRequestHandler(AbstractRequestHandler):
                 .ask(speak_output)
                 .response
         )
-"""
-class dailyPortion(AbstractRequestHandler):
-    def can_handle(self, handler_input):
-        return ask_utils.is_request_type("dailyPortion")(handler_input)
-    
-    def handle(self, handler_input):
-        url = "http://www.sefaria.org/api/calendars/?timezone=America/Vancouver&custom=ashkenazi"
-        response = requests.get(url).json()
-        sefaria_info = response
-        todays_weekday = datetime.date.today().isoweekday()
-        todays_aliyah = (sefaria_info['calendar_items'][0]['extraDetails']['aliyot'][todays_weekday])
-        todays_aliyah_url = todays_aliyah.replace(" ", ".")
-        todays_aliyah_url = 'https://www.sefaria.org/api/texts/' + todays_aliyah_url
-        
-        reading_response = requests.get(todays_aliyah_url).json()
-        reading_text = (reading_response['text'])
-        reading_text = ''.join(str(reading_text)[1:-1])
-        reading_text = str(reading_text)
-        reading_text = reading_text.replace("<i>", "")
-        reading_text = reading_text.replace("</i>", "")
-        
-        speech = todays_aliyah + reading_text
-        handler_input.response_builder.speak(speech).ask(speech)
 
-        speak_output = "Today's portion is " + speech
-
-        return (
-            handler_input.response_builder
-                .speak(speak_output)
-                .response
-        )
-"""
 class DailyPortionHandler(AbstractRequestHandler):
 # The intent reflector is used for interaction model testing and debugging.
   #  It will simply repeat the intent the user said. You can create custom handlers
@@ -218,7 +182,6 @@ sb = SkillBuilder()
 
 
 sb.add_request_handler(LaunchRequestHandler())
-#sb.add_request_handler(dailyPortion())
 sb.add_request_handler(HelpIntentHandler())
 sb.add_request_handler(CancelOrStopIntentHandler())
 sb.add_request_handler(DailyPortionHandler())
