@@ -31,26 +31,7 @@ class LaunchRequestHandler(AbstractRequestHandler):
 
     def handle(self, handler_input):
         # type: (HandlerInput) -> Response
-        url = "http://www.sefaria.org/api/calendars/?timezone=America/Vancouver&custom=ashkenazi"
-        response = requests.get(url).json()
-        sefaria_info = response
-        todays_weekday = datetime.date.today().isoweekday()
-
-        todays_aliyah = (sefaria_info['calendar_items'][0]['extraDetails']['aliyot'][todays_weekday])
-        todays_aliyah_url = todays_aliyah.replace(" ", ".")
-        todays_aliyah_url = 'https://www.sefaria.org/api/texts/' + todays_aliyah_url
-
-        reading_response = requests.get(todays_aliyah_url).json()
-        reading_text = (reading_response['text'])
-        reading_text = ''.join(reading_text)
-        reading_text = str(reading_text)
-        reading_text = reading_text.replace("<i>", "")
-        reading_text = reading_text.replace("</i>", "")
-
-        speech = todays_aliyah + reading_text
-        handler_input.response_builder.speak(speech).ask(speech)
-
-        speak_output = "Welcome to the Daily Torah Portion Alexa Skill. Today's portion is" + todays_aliyah + reading_text
+        speak_output = "Welcome to the Daily Torah Portion Alexa Skill. You can ask me for the daily portion."
 
         return (
             handler_input.response_builder
@@ -58,7 +39,78 @@ class LaunchRequestHandler(AbstractRequestHandler):
                 .ask(speak_output)
                 .response
         )
+"""
+class dailyPortion(AbstractRequestHandler):
+    def can_handle(self, handler_input):
+        return ask_utils.is_request_type("dailyPortion")(handler_input)
+    
+    def handle(self, handler_input):
+        url = "http://www.sefaria.org/api/calendars/?timezone=America/Vancouver&custom=ashkenazi"
+        response = requests.get(url).json()
+        sefaria_info = response
+        todays_weekday = datetime.date.today().isoweekday()
+        todays_aliyah = (sefaria_info['calendar_items'][0]['extraDetails']['aliyot'][todays_weekday])
+        todays_aliyah_url = todays_aliyah.replace(" ", ".")
+        todays_aliyah_url = 'https://www.sefaria.org/api/texts/' + todays_aliyah_url
+        
+        reading_response = requests.get(todays_aliyah_url).json()
+        reading_text = (reading_response['text'])
+        reading_text = ''.join(str(reading_text)[1:-1])
+        reading_text = str(reading_text)
+        reading_text = reading_text.replace("<i>", "")
+        reading_text = reading_text.replace("</i>", "")
+        
+        speech = todays_aliyah + reading_text
+        handler_input.response_builder.speak(speech).ask(speech)
 
+        speak_output = "Today's portion is " + speech
+
+        return (
+            handler_input.response_builder
+                .speak(speak_output)
+                .response
+        )
+"""
+class DailyPortionHandler(AbstractRequestHandler):
+# The intent reflector is used for interaction model testing and debugging.
+  #  It will simply repeat the intent the user said. You can create custom handlers
+   # for your intents by defining them above, then also adding them to the request
+    # handler chain below.
+
+    def can_handle(self, handler_input):
+        # type: (HandlerInput) -> bool
+        if ask_utils.is_request_type("dailyPortion"):
+            return ask_utils.is_request_type("IntentRequest")(handler_input)
+
+    def handle(self, handler_input):
+        url = "http://www.sefaria.org/api/calendars/?timezone=America/Vancouver&custom=ashkenazi"
+        response = requests.get(url).json()
+        sefaria_info = response
+        todays_weekday = datetime.date.today().isoweekday()
+        todays_aliyah = (sefaria_info['calendar_items'][0]['extraDetails']['aliyot'][todays_weekday])
+        todays_aliyah_url = todays_aliyah.replace(" ", ".")
+        todays_aliyah_url = 'https://www.sefaria.org/api/texts/' + todays_aliyah_url
+        
+        reading_response = requests.get(todays_aliyah_url).json()
+        reading_text = (reading_response['text'])
+        reading_text = ''.join(str(reading_text)[1:-1])
+        reading_text = str(reading_text)
+        reading_text = reading_text.replace("<i>", "")
+        reading_text = reading_text.replace("</i>", "")
+        
+        speech = todays_aliyah + reading_text
+        handler_input.response_builder.speak(speech).ask(speech)
+
+        speak_output = "Today's portion is " + speech
+
+        return (
+            handler_input.response_builder
+                .speak(speak_output)
+                .set_should_end_session(True)
+                .response
+                
+
+        )
 
 class HelpIntentHandler(AbstractRequestHandler):
     """Handler for Help Intent."""
@@ -68,13 +120,15 @@ class HelpIntentHandler(AbstractRequestHandler):
 
     def handle(self, handler_input):
         # type: (HandlerInput) -> Response
-        speak_output = "You can say ask me for the daily Torah Portion! How can I help?"
+        speak_output = "You can say tell me the daily portion! How can I help you?"
 
         return (
             handler_input.response_builder
                 .speak(speak_output)
                 .ask(speak_output)
+                .set_should_end_session(False)
                 .response
+                
         )
 
 
@@ -111,11 +165,11 @@ class SessionEndedRequestHandler(AbstractRequestHandler):
 
 
 class IntentReflectorHandler(AbstractRequestHandler):
-    """The intent reflector is used for interaction model testing and debugging.
-    It will simply repeat the intent the user said. You can create custom handlers
-    for your intents by defining them above, then also adding them to the request
-    handler chain below.
-    """
+# The intent reflector is used for interaction model testing and debugging.
+  #  It will simply repeat the intent the user said. You can create custom handlers
+   # for your intents by defining them above, then also adding them to the request
+    # handler chain below.
+
     def can_handle(self, handler_input):
         # type: (HandlerInput) -> bool
         return ask_utils.is_request_type("IntentRequest")(handler_input)
@@ -163,11 +217,11 @@ class CatchAllExceptionHandler(AbstractExceptionHandler):
 sb = SkillBuilder()
 
 
-#sb.add_request_handler(DailyPortionIntentHandler())
 sb.add_request_handler(LaunchRequestHandler())
-#sb.add_request_handler(GetDailyTorahPortionHandler())
+#sb.add_request_handler(dailyPortion())
 sb.add_request_handler(HelpIntentHandler())
 sb.add_request_handler(CancelOrStopIntentHandler())
+sb.add_request_handler(DailyPortionHandler())
 sb.add_request_handler(SessionEndedRequestHandler())
 sb.add_request_handler(IntentReflectorHandler()) # make sure IntentReflectorHandler is last so it doesn't override your custom intent handlers
 
