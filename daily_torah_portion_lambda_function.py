@@ -53,7 +53,7 @@ class DailyPortionHandler(AbstractRequestHandler):
         todays_weekday = datetime.date.today().isoweekday()
         todays_aliyah = (sefaria_info['calendar_items'][0]['extraDetails']['aliyot'][todays_weekday])
         todays_aliyah_url = todays_aliyah.replace(" ", ".")
-        todays_aliyah_url = 'https://www.sefaria.org/api/texts/' + todays_aliyah_url
+        todays_aliyah_url = 'https://www.sefaria.org/api/texts/' + todays_aliyah_url + '?context=0'
         
         reading_response = requests.get(todays_aliyah_url).json()
         reading_text = (reading_response['text'])
